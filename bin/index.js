@@ -1,16 +1,9 @@
 #!/usr/bin/env node
 const yargs = require('yargs');
 const chalk = require('chalk');
-const UUID = require('uuid');
 const { exec } = require('child_process');
 
-const {
-  createTable,
-  deleteTable,
-  listTables,
-  scanTable,
-  truncateTable
-} = require('../lib/functions');
+const Carpenter = require('../lib/carpenter');
 
 const options = yargs
   .usage('Usage: carpenter works agains local docker image. ')
@@ -57,22 +50,26 @@ const options = yargs
   })
   .argv;
 
-const dynamoPort = yargs.argv.dynamoPort;
+const { 
+  tableName,
+  gsiNumber,
+  lsiNumber,
+  partitionKeyName,
+  sortKeyName,
+  dynamoPort
+} = yargs.argv;
+
+const carpenter = new Carpenter(tableName, dynamoPort);
 
 if (options.function === 'createTable') {
-  const tableName = yargs.argv.tableName || UUID.v4();
-  const gsiNumber = yargs.argv.gsiNumber || 0;
-  const lsiNumber = yargs.argv.lsiNumber || 0;
-  const { partitionKeyName, sortKeyName } = yargs.argv;
-
-  createTable(tableName, gsiNumber, lsiNumber, partitionKeyName, sortKeyName, dynamoPort).then(() => {
+  carpenter.createTable(partitionKeyName, sortKeyName, gsiNumber, lsiNumber).then(() => {
     console.log(chalk.green(`Table ${tableName} created`));
   }).catch((err) => {
     console.log(chalk.red(`Error creating ${tableName} - ${err.name} - ${err.message}`));
   });
 }
 if (options.function === 'listTables') {
-  listTables(dynamoPort).then((tablesNames) => {
+  carpenter.listTables(dynamoPort).then((tablesNames) => {
     console.log(chalk.green('Table list'));
     console.log(tablesNames);
   }).catch((err) => {
@@ -80,22 +77,21 @@ if (options.function === 'listTables') {
   });
 }
 if (options.function === 'deleteTable') {
-  const tableName = yargs.argv.tableName;
-  deleteTable(tableName).then(() => {
+  carpenter.deleteTable(tableName).then(() => {
     console.log(chalk.green(`Table ${tableName} deleted`));
   }).catch((err) => {
     console.log(chalk.red(`Error deleting table - ${err.name} - ${err.message}`));
   });
 }
-if (options.function === 'dynamoUp') {
+if (options.function === 'dynamoUp') { 
+  // TODO should allow to choose dynamo docker image
   exec(`docker run -p ${dynamoPort}:${dynamoPort} -it --rm -d --name dynamoCarpenter instructure/dynamo-local-admin`);
 }
 if (options.function === 'dynamoDown') {
   exec('docker stop dynamoCarpenter')
 }
 if (options.function === 'scanTable') {
-  const { tableName, partitionKeyName, sortKeyName } = yargs.argv;
-  scanTable(tableName, partitionKeyName, sortKeyName, dynamoPort).then((data) => {
+  carpenter.scanTable(tableName, partitionKeyName, sortKeyName, dynamoPort).then((data) => {
     console.log(chalk.green(`Number of document found: ${data.Items.length}`))
     if (yargs.argv.returnDocuments) {
       console.log(data.Items);
@@ -105,8 +101,7 @@ if (options.function === 'scanTable') {
   });
 }
 if (options.function === 'truncateTable') {
-  const { tableName, partitionKeyName, sortKeyName } = yargs.argv;
-  truncateTable(tableName, partitionKeyName, sortKeyName, dynamoPort).then(() => {
+  carpenter.truncateTable(partitionKeyName, sortKeyName).then(() => {
     console.log(chalk.green(`Table ${tableName} truncated`));
   }).catch((err) => {
     console.log(chalk.red(`Error truncating table - ${err.name} - ${err.message}`));

@@ -32,20 +32,20 @@ Carpenter scan a table and provide a count of the items found in the table. The 
 Carpenter truncates a table. A table name must be provided.
 
 ## Usage
-Install carpenter:
+Clone carpenter
 
 ```
-npm i -g @pikselpalette/carpenter
+git clone https://github.com/pikselpalette/carpenter.git
 ```
 
 Use carpenter:
 
 ```
-carpenter --help
+node bin/index --help
 ```
 
 Example of a create table:
 
 ```
-carpenter --function createTable --tableName identity_local --gsiNumber 15 --lsiNumber 5
+node bin/index --function createTable --tableName identity_local --gsiNumber 15 --lsiNumber 5
 ```
