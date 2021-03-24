@@ -40,6 +40,14 @@ const options = yargs
     describe: 'The dynamo port of the local image',
     default: 8000
   })
+  .options('partitionKeyName', {
+    describe: 'The table\'s partition key name, default is partition_key',
+    default: 'partition_key'
+  })
+  .options('sortKeyName', {
+    describe: 'The table\'s sort key name, default is sort_key',
+    default: 'sort_key'
+  })
   .option('gui', {
     describe: 'Uses instructure/dynamo-local-admin'
   })
@@ -55,8 +63,9 @@ if (options.function === 'createTable') {
   const tableName = yargs.argv.tableName || UUID.v4();
   const gsiNumber = yargs.argv.gsiNumber || 0;
   const lsiNumber = yargs.argv.lsiNumber || 0;
+  const { partitionKeyName, sortKeyName } = yargs.argv;
 
-  createTable(tableName, gsiNumber, lsiNumber, dynamoPort).then(() => {
+  createTable(tableName, gsiNumber, lsiNumber, partitionKeyName, sortKeyName, dynamoPort).then(() => {
     console.log(chalk.green(`Table ${tableName} created`));
   }).catch((err) => {
     console.log(chalk.red(`Error creating ${tableName} - ${err.name} - ${err.message}`));
@@ -85,8 +94,8 @@ if (options.function === 'dynamoDown') {
   exec('docker stop dynamoCarpenter')
 }
 if (options.function === 'scanTable') {
-  const tableName = yargs.argv.tableName;
-  scanTable(tableName).then((data) => {
+  const { tableName, partitionKeyName, sortKeyName } = yargs.argv;
+  scanTable(tableName, partitionKeyName, sortKeyName, dynamoPort).then((data) => {
     console.log(chalk.green(`Number of document found: ${data.Items.length}`))
     if (yargs.argv.returnDocuments) {
       console.log(data.Items);
@@ -96,8 +105,8 @@ if (options.function === 'scanTable') {
   });
 }
 if (options.function === 'truncateTable') {
-  const tableName = yargs.argv.tableName;
-  truncateTable(tableName).then(() => {
+  const { tableName, partitionKeyName, sortKeyName } = yargs.argv;
+  truncateTable(tableName, partitionKeyName, sortKeyName, dynamoPort).then(() => {
     console.log(chalk.green(`Table ${tableName} truncated`));
   }).catch((err) => {
     console.log(chalk.red(`Error truncating table - ${err.name} - ${err.message}`));
