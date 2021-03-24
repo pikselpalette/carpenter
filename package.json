@@ -1,0 +1,39 @@
+{
+  "name": "@pikselpalette/carpenter",
+  "version": "0.1.0",
+  "description": "Create and manage Dynamo tables against local docker image",
+  "main": "index.js",
+  "engines": {
+    "node": "^12.13.0"
+  },
+  "dependencies": {
+    "@sequoia/lib-engine-common-dynamo": "^4.2.0",
+    "boxen": "^4.0.0",
+    "chalk": "^2.4.2",
+    "lodash": "^4.17.15",
+    "uuid": "^3.3.2",
+    "yargs": "^15.4.1"
+  },
+  "devDependencies": {
+    "@hapi/code": "^6.0.0",
+    "@hapi/lab": "^20.4.0",
+    "@sequoia/eslint-config-sequoia": "^3.0.0",
+    "@sequoia/eslint-plugin-sequoia": "^1.0.0",
+    "aws-sdk": "^2.752.0",
+    "eslint": "^6.6.0",
+    "eslint-plugin-import": "^2.18.2",
+    "jsdoc": "^3.5.0",
+    "sinon": "^7.3.2",
+    "tui-jsdoc-template": "^1.2.2",
+    "uuid": "^3.3.2"
+  },
+  "bin": {
+    "carpenter": "./bin/index.js"
+  },
+  "homepage": "https://github.com/pikselpalette/carpenter",
+  "author": "Piksel Product",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "registry": "https://npmjs.org"
+  }
+}
